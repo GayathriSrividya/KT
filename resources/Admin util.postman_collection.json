@@ -1,0 +1,129 @@
+{
+	"info": {
+		"_postman_id": "413c13e3-0068-4da9-b0fe-6c25ff49cdfb",
+		"name": "Admin util",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "23908122",
+		"_collection_link": "https://restless-water-97719.postman.co/workspace/Sunbird-Lern-Fixes~9b3b9812-cbc2-43d8-ad9d-18de476825d9/collection/23908122-413c13e3-0068-4da9-b0fe-6c25ff49cdfb?action=share&source=collection_link&creator=23908122"
+	},
+	"item": [
+		{
+			"name": "Step 1- keycloak token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Your test name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.globals.set(\"refresh_token\", jsonData.refresh_token);",
+							"    // pm.expect(jsonData.value).to.eql(100);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{apikey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{direct_grant_client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{direct_grant_client_pw}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{user_email}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{user_pw}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": "{{host}}/auth/realms/sunbird/protocol/openid-connect/token",
+				"description": "Don't add username & password of keyclock admin."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 2- Refresh token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Your test name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var access_token = jsonData.result.access_token;",
+							"    console.log(jsonData);",
+							"    if(access_token) {",
+							"        pm.environment.set(\"access_token\", access_token);",
+							"    }",
+							"    pm.expect(access_token).to.not.null;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{apikey}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "refresh_token",
+							"value": "{{refresh_token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": "https://gcp-fmps.sunbirded.org/auth/v1/refresh/token"
+			},
+			"response": []
+		}
+	]
+}
